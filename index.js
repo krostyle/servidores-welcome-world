@@ -7,6 +7,7 @@ http.createServer((req, res) => {
     const params = url.parse(req.url, true).query;
     const nombre = params.archivo;
     const contenido = params.contenido;
+    const nuevoNombre = params.nuevoNombre;
     const date = new Date();
     let day = date.getDate();
     const month = date.getMonth() + 1;
@@ -17,6 +18,7 @@ http.createServer((req, res) => {
     const fecha_actual = day + '/' + month + '/' + year;
     const contenido_final = fecha_actual + '\n' + contenido
     const pathFile = `./db/${nombre}.txt`
+    const newPathFile = `./db/${nuevoNombre}.txt`
     if (req.url.includes('/crear')) {
         try {
 
@@ -24,26 +26,40 @@ http.createServer((req, res) => {
             res.write('Archivo creado con exito')
             res.end();
         } catch (e) {
-            res.write(e)
+            console.log(err);
         }
     }
     if (req.url.includes('/leer')) {
         fs.readFile(pathFile, (err, data) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.write(data)
+                res.end()
+            }
 
-            res.write(data)
-            res.end()
         })
     }
     if (req.url.includes('/renombrar')) {
-        fs.rename('Gastos.txt', pathFile, (err, data) => {
-            res.write(`Archivo Gastos.txt renombrado por ${pathFile}`)
-            res.end()
+        fs.rename(pathFile, newPathFile, (err, data) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.write(`Archivo ${nombre}.txt renombrado por ${nuevoNombre}.txt`)
+                res.end()
+            }
+
         })
     }
     if (req.url.includes('/eliminar')) {
         fs.unlink(pathFile, (err, data) => {
-            res.write(`Archivo ${pathFile} eliminado con éxito`)
-            res.end()
+            if (err) {
+                console.log(err);
+            } else {
+                res.write(`Archivo ${nombre}.txt eliminado con éxito`)
+                res.end()
+            }
+
         })
     }
 
